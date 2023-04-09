@@ -10,7 +10,7 @@ namespace HR.Lib
 {
     public static class LibServiceRegistration
     {
-        public static IServiceCollection ConfigureLibServices(this IServiceCollection services, IConfiguration config)
+        public static IServiceCollection AddLibServices(this IServiceCollection services, IConfiguration config)
         {
             // Email
             services.Configure<EmailSettings>(config.GetSection("EmailSettings"));

@@ -9,25 +9,21 @@ internal class CreateLeaveTypeCommandHandler : IRequestHandler<CreateLeaveTypeCo
 {
     private readonly IMapper _mapper;
     private readonly ILeaveTypeRepository _leaveTypeRepository;
-    private readonly CreateLeaveTypeCommandValidator _valiator;
 
-    public CreateLeaveTypeCommandHandler(IMapper mapper, ILeaveTypeRepository leaveTypeRepository, CreateLeaveTypeCommandValidator valiator)
+    public CreateLeaveTypeCommandHandler(IMapper mapper, ILeaveTypeRepository leaveTypeRepository)
     {
         _mapper = mapper;
         _leaveTypeRepository = leaveTypeRepository;
-        _valiator = valiator;
     }
 
     public async Task<int> Handle(CreateLeaveTypeCommand request, CancellationToken cancellationToken)
     {
-        // Valid incoming data
-        var validationResult = await _valiator.ValidateAsync(request, cancellationToken);
+        // Validate incoming data
+        var validator = new CreateLeaveTypeCommandValidator(_leaveTypeRepository);
+        var validationResult = await validator.ValidateAsync(request);
 
         if (validationResult.Errors.Any())
-        {
-            throw new BadRequestException("Invalid LeaveType", validationResult);
-        }
-
+            throw new BadRequestException("Invalid Leave type", validationResult);
 
         // convert to domain entity object
         var leaveTypeToCreate = _mapper.Map<Domain.LeaveType>(request);
