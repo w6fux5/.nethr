@@ -3,10 +3,15 @@ using HR.Application;
 using HR.Identity;
 using HR.Lib;
 using HR.Persistence;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Host.UseSerilog((context, loggerConfig) => loggerConfig
+    .WriteTo.Console()
+    .ReadFrom.Configuration(context.Configuration));
+
 builder.Services.AddApplicationServices();
 builder.Services.AddLibServices(builder.Configuration);
 builder.Services.AddPersistenceServices(builder.Configuration);
@@ -25,6 +30,7 @@ builder.Services.AddCors(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
@@ -36,6 +42,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
 

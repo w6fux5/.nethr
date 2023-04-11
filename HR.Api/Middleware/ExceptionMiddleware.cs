@@ -1,5 +1,6 @@
 ﻿using HR.Api.Models;
 using HR.Application.Exceptions;
+using Newtonsoft.Json;
 using System.Net;
 
 namespace HR.Api.Middleware
@@ -7,10 +8,12 @@ namespace HR.Api.Middleware
     public class ExceptionMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger<ExceptionMiddleware> _logger;
 
-        public ExceptionMiddleware(RequestDelegate next)
+        public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
         {
             _next = next;
+            _logger = logger;
         }
 
         public async Task InvokeAsync(HttpContext httpContext)
@@ -70,6 +73,9 @@ namespace HR.Api.Middleware
             }
 
             httpContext.Response.StatusCode = (int)statusCode;
+
+            var logMessage = JsonConvert.SerializeObject(problem);
+            _logger.LogError(ex, logMessage);
             await httpContext.Response.WriteAsJsonAsync(problem);
         }
     }

@@ -15,6 +15,7 @@ namespace HR.Persistence.Repositories
         {
             var leaveRequests = await _context
                 .Tbl_LeaveRequest
+                .Where(q => !string.IsNullOrEmpty(q.RequestingEmployeeId))
                 .Include(q => q.LeaveType)
                 .ToListAsync();
 
